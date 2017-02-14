@@ -1,0 +1,17 @@
+{
+    "name": "sfusilier/Data",
+    "description": "php data layer components",
+    "authors": [
+        {
+            "name": "Scott Fusilier",
+            "email": "scottfusilier@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=5.5.0"
+    },
+    "autoload": {
+        "psr-4": { "Data\\": "" }
+    }
+}
