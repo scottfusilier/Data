@@ -293,7 +293,7 @@ abstract class SqlModel implements Model
         foreach ($refclass->getProperties() as $property) {
             if ($property->class == $refclass->name) {
                 $name = $property->name;
-                if ($this->$name && $name != $idField) {
+                if ($name != $idField) {
                     $values .= ':'.$name.', ';
                     $data[':'.$name] = $this->$name;
                     $fields .= $name.', ';
@@ -346,7 +346,7 @@ abstract class SqlModel implements Model
         foreach ($refclass->getProperties() as $property) {
             if ($property->class == $refclass->name) {
                 $name = $property->name;
-                if ($this->$name && $name != $idField) {
+                if ($name != $idField) {
                     $values .= $name.' = :'.$name.', ';
                     $data[':'.$name] = $this->$name;
                 }
