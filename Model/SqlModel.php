@@ -101,8 +101,35 @@ abstract class SqlModel implements Model
         foreach ($fields as $key => $value) {
             $this->{$key} = $value;
         }
+        return $this;
     }
 
+/*
+ * Define this Objects fields based on table data
+ */
+    public  function defineFields()
+    {
+        $fields = $this->getTableFields();
+        if (empty($fields)) {
+            throw new \Exception('no fields to define');
+        }
+        return $this->setFields($fields);
+    }
+
+/*
+ * Get table fields
+ */
+    public function getTableFields()
+    {
+        $fields = [];
+        $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{$this->getTableName()}'";
+        if ($stmt = $this->getReadPdo()->query($sql)) {
+            while ($field = $stmt->fetchColumn()) {
+                $fields[$field] = NULL;
+            }
+        }
+        return $fields;
+    }
 /*
  * Get object's fields
  */
@@ -116,7 +143,6 @@ abstract class SqlModel implements Model
                 $fields[$name] = $this->$name;
             }
         }
-
         return $fields;
     }
 
@@ -132,6 +158,7 @@ abstract class SqlModel implements Model
                 $this->$name = NULL;
             }
         }
+        return $this;
     }
 
 /*
@@ -140,8 +167,7 @@ abstract class SqlModel implements Model
     public function fetchObject($idObject = 0) {
         $fields = $this->getByField($this->getIdField(), $idObject);
         if ($fields) {
-            $this->setFields($fields);
-            return $this;
+            return $this->setFields($fields);
         } else {
             return false;
         }
@@ -153,8 +179,7 @@ abstract class SqlModel implements Model
     public function fetchByField($field = '', $value = '') {
         $fields = $this->getByField($field, $value);
         if ($fields) {
-            $this->setFields($fields);
-            return $this;
+            return $this->setFields($fields);
         } else {
             return false;
         }
@@ -170,7 +195,6 @@ abstract class SqlModel implements Model
         $query = 'SELECT * FROM '.$this->getTableName().' WHERE %s = :value';
         $query = sprintf($query, $fieldName);
         $stmt = $this->readQuery($query, [':value' => $value]);
-
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
@@ -219,7 +243,6 @@ abstract class SqlModel implements Model
         if (!isset($this->$idField)) {
             return $this->saveNewRecord();
         }
-
         return $this->saveExistingRecord();
     }
 
