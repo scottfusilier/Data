@@ -316,14 +316,16 @@ abstract class SqlModel implements Model
  */
     private function saveExistingRecord()
     {
-        $data = array();
+        $data = [];
         $values = '';
         $refclass = new \ReflectionObject($this);
         $idField = $this->getIdField();
         foreach ($refclass->getProperties() as $property) {
             if ($property->class == $refclass->name) {
                 $name = $property->name;
-                if ($name != $idField) {
+                if ($name == $idField) {
+                    $data[':'.$idField] = $this->$idField;
+                } else {
                     $values .= $name.' = :'.$name.', ';
                     $data[':'.$name] = $this->$name;
                 }
@@ -331,7 +333,8 @@ abstract class SqlModel implements Model
         }
         $values = rtrim($values, ', ');
 
-        $sql = 'UPDATE '.$this->getTableName().' SET '.$values.' WHERE '.$idField.' = '.$this->$idField;
+        $sql = 'UPDATE '.$this->getTableName().' SET '.$values.' WHERE '.$idField.' = :'.$idField;
+
         try {
             $stmt = $this->getWritePdo()->prepare($sql);
 
