@@ -94,49 +94,13 @@ abstract class SqlModel implements Model
     }
 
 /*
- * Define this Objects fields based on table data
+ * Set object's fields
  */
-    protected function defineFields()
+    public function setFields(array $fields = [])
     {
-        $fields = $this->getTableFields();
-        if (!$fields) {
-            throw new \Exception('no fields');
+        foreach ($fields as $key => $value) {
+            $this->{$key} = $value;
         }
-        foreach ($fields as $field) {
-            $this->{$field} = null;
-        }
-    }
-
-/*
- * Get create table info
- */
-    public function getCreateTable()
-    {
-        if ($stmt = $this->getReadPdo()->query('SHOW CREATE TABLE '.$this->getTableName())) {
-            $obj = $stmt->fetch(\PDO::FETCH_OBJ);
-            if (isset($obj->{'Create Table'})) {
-                return $obj->{'Create Table'};
-            }
-        }
-
-        return false;
-    }
-
-/*
- * Get table fields
- */
-    public function getTableFields()
-    {
-        $sql = "SHOW COLUMNS FROM {$this->getTableName()}";
-        if ($stmt = $this->getReadPdo()->query($sql)) {
-            $fields = [];
-            while ($obj = $stmt->fetch(\PDO::FETCH_OBJ)) {
-                $fields[] = $obj->Field;
-            }
-            return $fields;
-        }
-
-        return false;
     }
 
 /*
@@ -167,16 +131,6 @@ abstract class SqlModel implements Model
                 $name = $property->getName();
                 $this->$name = NULL;
             }
-        }
-    }
-
-/*
- * Set object's fields
- */
-    public function setFields(array $fields = [])
-    {
-        foreach ($fields as $key => $value) {
-            $this->{$key} = $value;
         }
     }
 
