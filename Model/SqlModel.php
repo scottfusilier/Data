@@ -213,7 +213,7 @@ abstract class SqlModel implements Model
  */
     public function getByField($fieldName = '', $value = '')
     {
-        $query = 'SELECT * FROM '.$this->getTableName().' WHERE %s = :value LIMIT 1';
+        $query = 'SELECT * FROM '.$this->getTableName().' WHERE %s = :value';
         $query = sprintf($query, $fieldName);
         $stmt = $this->readQuery($query, [':value' => $value]);
 
@@ -385,7 +385,7 @@ abstract class SqlModel implements Model
 
         if ($valid) {
             try {
-                $sql = 'DELETE FROM '.$this->getTableName().' WHERE ' .$idField. ' = :idObject LIMIT 1';
+                $sql = 'DELETE FROM '.$this->getTableName().' WHERE ' .$idField. ' = :idObject';
                 $stmt = $this->getWritePdo()->prepare($sql);
                 $success = $stmt->execute([':idObject' => $idObject]);
                 if ($success) {
