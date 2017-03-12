@@ -225,7 +225,7 @@ abstract class SqlModel implements Model
     }
 
 /*
- *
+ * In transaction
  */
     public function inTransaction()
     {
@@ -297,7 +297,6 @@ abstract class SqlModel implements Model
                     }
                 }
             }
-
             return $success;
         } catch (\PDOException $ex) {
             if ($this->inTransaction()) {
@@ -334,10 +333,8 @@ abstract class SqlModel implements Model
         $values = rtrim($values, ', ');
 
         $sql = 'UPDATE '.$this->getTableName().' SET '.$values.' WHERE '.$idField.' = :'.$idField;
-
         try {
             $stmt = $this->getWritePdo()->prepare($sql);
-
             return ($stmt->execute($data) && $stmt->rowCount());
         } catch (\PDOException $ex) {
             if ($this->inTransaction()) {
