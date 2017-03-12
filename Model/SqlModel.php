@@ -362,9 +362,9 @@ abstract class SqlModel implements Model
 
         if ($valid) {
             try {
-                $sql = 'DELETE FROM '.$this->getTableName().' WHERE ' .$idField. ' = :idObject';
+                $sql = 'DELETE FROM '.$this->getTableName().' WHERE ' .$idField. ' = :'.$idField;
                 $stmt = $this->getWritePdo()->prepare($sql);
-                $success = $stmt->execute([':idObject' => $idObject]);
+                $success = $stmt->execute([':'.$idField => $idObject]);
                 if ($success) {
                     $this->setFieldsNull();
                 }
