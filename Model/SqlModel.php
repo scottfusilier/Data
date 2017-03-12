@@ -240,7 +240,7 @@ abstract class SqlModel implements Model
     public function save()
     {
         $idField = $this->getIdField();
-        if (!isset($this->$idField)) {
+        if (empty($this->$idField)) {
             return $this->saveNewRecord();
         }
         return $this->saveExistingRecord();
@@ -338,7 +338,7 @@ abstract class SqlModel implements Model
         try {
             $stmt = $this->getWritePdo()->prepare($sql);
 
-            return $stmt->execute($data);
+            return ($stmt->execute($data) && $stmt->rowCount());
         } catch (\PDOException $ex) {
             if ($this->inTransaction()) {
                 $this->rollBackTransaction();
