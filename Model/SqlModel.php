@@ -26,8 +26,6 @@ abstract class SqlModel implements Model
  * $obj = Model::get(); //returns instance
  * $obj = Model::get(134); // returns instance or false id not found
  * $obj = Model::get()->fetchByField('Field','value'); // returns instance or false if not found
- *
- * $result = Model::get()->select('SELECT * FROM ...');
  */
     public static function get($idObject = null)
     {
