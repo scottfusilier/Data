@@ -12,6 +12,11 @@ abstract class SqlModel implements Model
     abstract protected function getIdField();
 
 /*
+ * platform dependent identifier quotes
+ */
+    abstract protected function quoteIdentifier($identifier);
+
+/*
  * Static Convenience Method, get.
  *
  * (set up for chaining, returns instance or false if not found)
@@ -122,7 +127,7 @@ abstract class SqlModel implements Model
     public function getTableFields()
     {
         $fields = [];
-        $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{$this->getTableName()}'";
+        $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = {$this->quoteIdentifier($this->getTableName())}";
         if ($stmt = $this->getReadPdo()->query($sql)) {
             while ($field = $stmt->fetchColumn()) {
                 $fields[$field] = NULL;
@@ -192,8 +197,8 @@ abstract class SqlModel implements Model
  */
     public function getByField($fieldName = '', $value = '')
     {
-        $query = 'SELECT * FROM '.$this->getTableName().' WHERE %s = :value';
-        $query = sprintf($query, $fieldName);
+        $query = 'SELECT * FROM '.$this->quoteIdentifier($this->getTableName()).' WHERE %s = :value';
+        $query = sprintf($query, $this->quoteIdentifier($fieldName));
         $stmt = $this->readQuery($query, [':value' => $value]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
@@ -262,7 +267,7 @@ abstract class SqlModel implements Model
 
         $idKey = $this->generateIdKey();
         if ($idKey) {
-            $fields = $idField . ',';
+            $fields = $this->quoteIdentifier($idField);
             $values = ':'.$idField.',';
             $data[':'.$idField] = $idKey;
         }
@@ -273,14 +278,14 @@ abstract class SqlModel implements Model
                 if ($name != $idField) {
                     $values .= ':'.$name.', ';
                     $data[':'.$name] = $this->$name;
-                    $fields .= $name.', ';
+                    $fields .= $this->quoteIdentifier($name).',';
                 }
             }
         }
         $values = rtrim($values, ', ');
         $fields = rtrim($fields, ', ');
 
-        $sql = 'INSERT INTO '.$this->getTableName().' ('.$fields.') VALUES ('.$values.')';
+        $sql = 'INSERT INTO '.$this->quoteIdentifier($this->getTableName()).' ('.$fields.') VALUES ('.$values.')';
         try {
             $db = $this->getWritePdo();
             $stmt = $db->prepare($sql);
@@ -325,14 +330,14 @@ abstract class SqlModel implements Model
                 if ($name == $idField) {
                     $data[':'.$idField] = $this->$idField;
                 } else {
-                    $values .= $name.' = :'.$name.', ';
+                    $values .= $this->quoteIdentifier($name).' = :'.$name.', ';
                     $data[':'.$name] = $this->$name;
                 }
             }
         }
         $values = rtrim($values, ', ');
 
-        $sql = 'UPDATE '.$this->getTableName().' SET '.$values.' WHERE '.$idField.' = :'.$idField;
+        $sql = 'UPDATE '.$this->quoteIdentifier($this->getTableName()).' SET '.$values.' WHERE '.$this->quoteIdentifier($idField).' = :'.$idField;
         try {
             $stmt = $this->getWritePdo()->prepare($sql);
             return ($stmt->execute($data) && $stmt->rowCount());
@@ -362,7 +367,7 @@ abstract class SqlModel implements Model
 
         if ($valid) {
             try {
-                $sql = 'DELETE FROM '.$this->getTableName().' WHERE ' .$idField. ' = :'.$idField;
+                $sql = 'DELETE FROM '.$this->quoteIdentifier($this->getTableName()).' WHERE ' .$this->quoteIdentifier($idField). ' = :'.$idField;
                 $stmt = $this->getWritePdo()->prepare($sql);
                 $success = $stmt->execute([':'.$idField => $idObject]);
                 if ($success) {
@@ -470,7 +475,7 @@ abstract class SqlModel implements Model
  */
     private function fetchAllQuery($tableName = '', array $where = [], array $joins = [], array $clauses = [])
     {
-        $sql = 'SELECT Obj.* FROM '.$tableName.' Obj ';
+        $sql = 'SELECT Obj.* FROM '.$this->quoteIdentifier($tableName).' Obj ';
 
         if (!empty($joins)) {
             $sql .= implode(' ', $joins);
