@@ -125,7 +125,7 @@ abstract class SqlModel implements Model
     public function getTableFields()
     {
         $fields = [];
-        $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = {$this->quoteIdentifier($this->getTableName())}";
+        $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{$this->getTableName()}'";
         if ($stmt = $this->getReadPdo()->query($sql)) {
             while ($field = $stmt->fetchColumn()) {
                 $fields[$field] = NULL;
