@@ -18,7 +18,7 @@ abstract class SqliteModel extends SqlModel
     public function getTableFields()
     {
         $fields = [];
-        $sql = "PRAGMA table_info('{$this->quoteIdentifier($this->getTableName())}')";
+        $sql = "PRAGMA table_info({$this->quoteIdentifier($this->getTableName())})";
         if ($stmt = $this->getReadPdo()->query($sql)) {
             while ($field = $stmt->fetchObject()) {
                 $fields[$field->name] = NULL;
